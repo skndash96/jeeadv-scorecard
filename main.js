@@ -106,6 +106,17 @@ const keys = {
 const optMap = {"A": 1, "B": 2, "C": 3, "D": 4};
 const rOptMap = ["A", "B", "C", "D"];
 
+function isPara(id) {
+    let n = parseInt(id.slice(-3));
+
+    return (
+        (n >= 252 && n <= 255) ||
+        (n >= 235 && n <= 238) ||
+        (n >= 218 && n <= 221)
+    );
+    // 252-255 235-238 218-221
+}
+
 function getSub(id) {
     let n = parseInt(id.slice(-3));
 
@@ -119,6 +130,7 @@ function getSub(id) {
 
 let score = 0, max = 0;
 let p = 0, c = 0, m = 0, correct = 0, wrong = 0, unattempted = 0, total = 0;
+let mcq = 0, msq = 0, sa = 0, pa = 0;
 
 for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let q = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
@@ -132,8 +144,6 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
             let n = t.previousElementSibling.children[0].children[2+optMap[o]].querySelector("img").name.split(".").shift().slice(-1);
             return rOptMap[n-1];
         }).join("");
-
-        console.log(pre, q[2], "ans", keys[q[1]]);
     }
 
     let [typ, id, ans] = q;
@@ -150,7 +160,10 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
         
         crct = ans === keys[id] || (dec === "00" && ans === int);
 
-        let p = (keys[id].includes(".") ? 3 : 4);
+        let p = isPara(id) ? 3 : 4;
+
+        if (p === 3) pa++;
+        else sa++;
 
         max += p;
         score += crct ? p : 0;
@@ -159,11 +172,13 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
 
         score += crct ? 3 : (notAttempted ? 0 : -1);
         max += 3;
+        mcq++;
     } else if (typ === "MSQ") {
         let marked = ans.split("");
         let key = keys[id].split("");
         
         max += 4;
+        msq++;
         
         if (marked.some(x => !key.includes(x))) {
             if (!notAttempted) score += -2;
@@ -177,13 +192,14 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let del = score-prevScore;
 
     total++;
+    
+    console.log(id, ans, keys[id], crct, del);
 
     if (notAttempted) {
         unattempted++;
         continue;
     }
 
-    console.log(id, ans, keys[id], crct, del);
 
     if (crct) correct++;
     else wrong++;
