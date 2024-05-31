@@ -160,10 +160,7 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
 
     total++;
 
-    if (ans === "--") {
-        unattempted++;
-        continue;
-    };
+    let notAttempted = ans === "--";
 
     let prevScore = score;
     let crct;
@@ -171,35 +168,46 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let [isP, isC, isM] = getSub(id);
 
     if (typ === "SA") {
-        let [int, dec] = keys[id].split(".");
+        let [int, dec] = keys[id].split(".").concat(null);
         
         crct = ans === keys[id] || (dec === "00" && ans === int);
 
         let p = (keys[id].includes(".") ? 3 : 4);
+
         max += p;
         score += crct ? p : 0;
     } else if (typ === "MCQ") {
         crct = ans === keys[id];
-        score += crct ? 3 : -1;
+
+        score += crct ? 3 : (notAttempted ? 0 : -1);
         max += 3;
     } else if (typ === "MSQ") {
         let marked = ans.split(",");
         let key = keys[id].split("");
-
+        
+        max += 4;
+        
         if (marked.some(x => !key.includes(x))) {
-            score += -2;
+            if (!notAttempted) score += -2;
             crct = false;
         } else {
             crct = true;
             score += key.length === marked.length ? 4 : marked.length;
-            max += 4;
         }
     }
+
+    let del = score-prevScore;
+
+    if (notAttempted) {
+        unattempted++;
+        continue;
+    }
+
+    console.log(id, ans, keys[id], crct, del);
 
     if (crct) correct++;
     else wrong++;
 
-    let del = score-prevScore;
 
     if (isP) p += del;
     else if (isC) c += del;
