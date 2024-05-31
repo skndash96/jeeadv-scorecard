@@ -1,6 +1,6 @@
 //MAP my response to others
 
-const keys = {
+const keys0 = {
     //PAPER 1
 
 //CHEM 290-306
@@ -140,6 +140,8 @@ const keys = {
 const m = {"A":1, "B":2, "C":3, "D":4};
 const rm = ["A", "B", "C", "D"];
 
+let changed = 0;
+
 for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let q = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
 
@@ -157,5 +159,10 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
             
             return to;
         }).join("");
+        changed++;
     }
 }
+
+console.log(keys);
+
+console.log("CHANGED", changed);
