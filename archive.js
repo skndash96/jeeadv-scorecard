@@ -1,5 +1,4 @@
 //MAP my response to others
-
 const keys0 = {
     //PAPER 1
 
@@ -136,6 +135,11 @@ const keys0 = {
 "618074220": "0.00",
 "618074219": "36.00"
 };
+
+//procedure
+//copy paste keys0 as keys in paper1
+//copy paste output as keys in paper2
+//copy paste output as keys in main.js
 
 const m = {"A":1, "B":2, "C":3, "D":4};
 const rm = ["A", "B", "C", "D"];
