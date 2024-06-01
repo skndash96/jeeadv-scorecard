@@ -141,6 +141,7 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
 
     if (typ === "SA") {
         ans = optBodyEl.querySelector("tr:last-child").children[1].textContent.trim();
+        relAns = ans;
     } else if (ans !== "--") {
         //Map relative option id answer  to fixed option id         
         ans = ans.split(",").map(o => {
