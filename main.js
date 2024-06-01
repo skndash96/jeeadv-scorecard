@@ -131,20 +131,33 @@ function getSub(id) {
 let score = 0, max = 0;
 let p = 0, c = 0, m = 0, correct = 0, wrong = 0, unattempted = 0, total = 0;
 
-for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
-    let q = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
 
-    if (q[0] === "SA") {
-        q[2] = t.previousElementSibling.children[0].querySelector("tr:last-child").children[1].textContent.trim();
-    } else if (q[2] !== "--") {
-        q[2] = q[2].split(",").map(o => {
-            let n = t.previousElementSibling.children[0].children[2+optMap[o]].querySelector("img").name.split(".").shift().slice(-1);
+for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
+    let optBodyEl = t.previousElementSibling.children[0];
+    
+    let [typ, id, ans] = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
+    
+    let relAns = ans;
+
+    if (typ === "SA") {
+        ans = optBodyEl.querySelector("tr:last-child").children[1].textContent.trim();
+    } else if (ans !== "--") {
+        //Map relative option id answer  to fixed option id         
+        ans = ans.split(",").map(o => {
+            let n = optBodyEl.children[2+optMap[o]].querySelector("img").name.split(".").shift().slice(-1);
             return rOptMap[n-1];
         }).join("");
     }
 
-    let [typ, id, ans] = q;
-
+    //Map fixed option id key to relative option id
+    let relKey = typ === "SA"
+        ? keys[id] 
+        : keys[id].split("").map(o => {
+            let tr = optBodyEl.querySelector(`tr:has(img[name$='o${optMap[o]}.jpg']`);
+            let n = [...optBodyEl.children].findIndex(x => x === tr);
+            return rOptMap[n-3];
+        }).sort().join("");
+    
     let notAttempted = ans === "--";
 
     let prevScore = score;
@@ -198,9 +211,9 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     
     tr.innerHTML = `
     <br/>
-    Given ans: ${ans}
+    Given ans: ${relAns}
     </br>
-    Key ans: ${keys[id]}
+    Key ans: ${relKey}
     </br>
     Marks: ${del}`;
 
