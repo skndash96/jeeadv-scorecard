@@ -130,7 +130,6 @@ function getSub(id) {
 
 let score = 0, max = 0;
 let p = 0, c = 0, m = 0, correct = 0, wrong = 0, unattempted = 0, total = 0;
-let mcq = 0, msq = 0, sa = 0, pa = 0;
 
 for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let q = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
@@ -138,8 +137,6 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     if (q[0] === "SA") {
         q[2] = t.previousElementSibling.children[0].querySelector("tr:last-child").children[1].textContent.trim();
     } else if (q[2] !== "--") {
-        let pre = q[2];
-
         q[2] = q[2].split(",").map(o => {
             let n = t.previousElementSibling.children[0].children[2+optMap[o]].querySelector("img").name.split(".").shift().slice(-1);
             return rOptMap[n-1];
@@ -151,40 +148,35 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let notAttempted = ans === "--";
 
     let prevScore = score;
-    let crct;
+    let isCrct;
 
     let [isP, isC, isM] = getSub(id);
 
     if (typ === "SA") {
         let [int, dec] = keys[id].split(".").concat(null);
         
-        crct = ans === keys[id] || (dec === "00" && ans === int);
+        isCrct = ans === keys[id] || (dec === "00" && ans === int);
 
         let p = isPara(id) ? 3 : 4;
 
-        if (p === 3) pa++;
-        else sa++;
-
         max += p;
-        score += crct ? p : 0;
+        score += isCrct ? p : 0;
     } else if (typ === "MCQ") {
-        crct = ans === keys[id];
+        isCrct = ans === keys[id];
 
-        score += crct ? 3 : (notAttempted ? 0 : -1);
+        score += isCrct ? 3 : (notAttempted ? 0 : -1);
         max += 3;
-        mcq++;
     } else if (typ === "MSQ") {
         let marked = ans.split("");
         let key = keys[id].split("");
         
         max += 4;
-        msq++;
         
         if (marked.some(x => !key.includes(x))) {
             if (!notAttempted) score += -2;
-            crct = false;
+            isCrct = false;
         } else {
-            crct = true;
+            isCrct = true;
             score += key.length === marked.length ? 4 : marked.length;
         }
     }
@@ -192,22 +184,39 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
     let del = score-prevScore;
 
     total++;
+
+    let tr = document.createElement("tr");
     
-    console.log(id, ans, keys[id], crct, del);
+    tr.style.background = isCrct 
+        ? "darkseagreen"
+        : (!notAttempted && del <= 0)
+        ? "crimson"
+        : "lightgrey";
+    tr.style.color = (!notAttempted && del <= 0)
+        ? "white"
+        : "black";
+    
+    tr.innerHTML = `
+    <br/>
+    Given ans: ${ans}
+    </br>
+    Key ans: ${keys[id]}
+    </br>
+    Marks: ${del}`;
+
+    t.children[0].appendChild(tr);
 
     if (notAttempted) {
         unattempted++;
-        continue;
+    } else {
+        if (isCrct) correct++;
+        else wrong++;
+    
+    
+        if (isP) p += del;
+        else if (isC) c += del;
+        else if (isM) m += del;
     }
-
-
-    if (crct) correct++;
-    else wrong++;
-
-
-    if (isP) p += del;
-    else if (isC) c += del;
-    else if (isM) m += del;
 }
 
 alert(`
