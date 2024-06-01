@@ -1,4 +1,4 @@
-//MAP my response to others
+//response relative to mine
 const keys0 = {
     //PAPER 1
 

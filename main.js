@@ -103,8 +103,7 @@ const keys = {
     "618074306": "C"
 };
 
-const optMap = {"A": 1, "B": 2, "C": 3, "D": 4};
-const rOptMap = ["A", "B", "C", "D"];
+const OPTIONS = ["A", "B", "C", "D"];
 
 function isPara(id) {
     let n = parseInt(id.slice(-3));
@@ -128,85 +127,70 @@ function getSub(id) {
     //no else ig
 }
 
-let score = 0, max = 0;
-let p = 0, c = 0, m = 0, correct = 0, wrong = 0, unattempted = 0, total = 0;
+let max = 0, score = 0;
+let p = 0, c = 0, m = 0, unattempted = 0, correct = 0, wrong = 0, total = 0;
 
-
-for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
+for (let t of document.querySelectorAll("table.menu-tbl")) {
     let optBodyEl = t.previousElementSibling.children[0];
-    
-    let [typ, id, ans] = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
-    
-    let relAns = ans;
 
+    let [typ, id, relAns] = [...t.children[0].children].map(tr => tr.children[1].textContent.trim());
+    
+    let fixedAns, fixedKey = keys[id];
+    let relKey;
+    
     if (typ === "SA") {
-        ans = optBodyEl.querySelector("tr:last-child").children[1].textContent.trim();
-        relAns = ans;
-    } else if (ans !== "--") {
-        //Map relative option id answer  to fixed option id         
-        ans = ans.split(",").map(o => {
-            let n = optBodyEl.children[2+optMap[o]].querySelector("img").name.split(".").shift().slice(-1);
-            return rOptMap[n-1];
-        }).join("");
+        fixedAns = optBodyEl.querySelector("tr:last-child").children[1].textContent.trim();
+        relAns = fixedAns;
+        relKey = fixedKey;
+    }
+    else {
+        let fixedOpts = [...optBodyEl.querySelectorAll("tr img[name$='.jpg']")].slice(-4).map(img => img.name[img.name.length-5]).map(n => OPTIONS[parseInt(n)-1]).join("");
+
+        fixedAns = relAns.split(",").map(o => fixedOpts[OPTIONS.indexOf(o)]).sort().join("");
+        relKey = fixedKey.split("").map(o => OPTIONS[fixedOpts.indexOf(o)]).sort().join("");
     }
 
-    //Map fixed option id key to relative option id
-    let relKey = typ === "SA"
-        ? keys[id] 
-        : keys[id].split("").map(o => {
-            let tr = optBodyEl.querySelector(`tr:has(img[name$='o${optMap[o]}.jpg']`);
-            let n = [...optBodyEl.children].findIndex(x => x === tr);
-            return rOptMap[n-3];
-        }).sort().join("");
-    
-    let notAttempted = ans === "--";
+    let attempted = relAns !== "--";
+    let isCrct = false;
 
     let prevScore = score;
-    let isCrct;
-
-    let [isP, isC, isM] = getSub(id);
 
     if (typ === "SA") {
-        let [int, dec] = keys[id].split(".").concat(null);
-        
-        isCrct = ans === keys[id] || (dec === "00" && ans === int);
-
         let p = isPara(id) ? 3 : 4;
 
-        max += p;
-        score += isCrct ? p : 0;
-    } else if (typ === "MCQ") {
-        isCrct = ans === keys[id];
+        if (fixedAns.split(".")[1]?.length > 2) isCrct = false;
+        else isCrct = fixedAns === fixedKey || (parseFloat(fixedAns) === parseFloat(fixedKey));
 
-        score += isCrct ? 3 : (notAttempted ? 0 : -1);
-        max += 3;
+        score += isCrct ? p : 0;
+        max += p;
+    } else if (typ === "MCQ") {
+        isCrct = fixedAns === fixedKey;
+
+        if (attempted) score += isCrct ? 3 : -1;
+        max += 3;;
     } else if (typ === "MSQ") {
-        let marked = ans.split("");
-        let key = keys[id].split("");
-        
         max += 4;
-        
-        if (marked.some(x => !key.includes(x))) {
-            if (!notAttempted) score += -2;
-            isCrct = false;
-        } else {
-            isCrct = true;
-            score += key.length === marked.length ? 4 : marked.length;
+
+        if (attempted) {
+            if ([...fixedAns].some(o => !fixedKey.includes(o))) {
+                score += -2;
+            } else {
+                isCrct = true;
+                score += fixedAns.length === fixedKey.length ? 4 : fixedAns.length;
+            }
         }
     }
-
+    
     let del = score-prevScore;
-
-    total++;
 
     let tr = document.createElement("tr");
     
     tr.style.background = isCrct 
         ? "darkseagreen"
-        : (!notAttempted && del <= 0)
+        : (attempted && del <= 0)
         ? "crimson"
         : "lightgrey";
-    tr.style.color = (!notAttempted && del <= 0)
+    tr.style.color = (attempted && del <= 0)
         ? "white"
         : "black";
     
@@ -220,23 +204,30 @@ for (let t of [...document.querySelectorAll('table.menu-tbl')]) {
 
     t.children[0].appendChild(tr);
 
-    if (notAttempted) {
-        unattempted++;
-    } else {
+    total++;
+
+    if (attempted) {
         if (isCrct) correct++;
         else wrong++;
     
+        let [isP, isC, isM] = getSub(id);
     
         if (isP) p += del;
         else if (isC) c += del;
         else if (isM) m += del;
+    } else {
+        unattempted++;
     }
 }
 
 alert(`
-Total ${score}/${max}
-
-Physics     ${p}
-Chemistry   ${c}
+You scored ${score}/${max}
+Physics ${p}
+Chemistry ${c}
 Mathematics ${m}
+
+Total: ${total}
+Correct: ${correct}
+Wrong: ${wrong}
+Unattempted: ${unattempted}
 `);
