@@ -72,7 +72,7 @@ const keys = {
     "618074275": "B",
     "618074276": "C",
     "618074277": "ABC",
-    "618074278": "AAD",
+    "618074278": "ACD",
     "618074279": "BA",
     "618074280": "25000",
     "618074281": "12",
@@ -144,7 +144,7 @@ for (let t of document.querySelectorAll("table.menu-tbl")) {
         relKey = fixedKey;
     }
     else {
-        let fixedOpts = [...optBodyEl.querySelectorAll("tr img[name$='.jpg']")].slice(-4).map(img => img.name[img.name.length-5]).map(n => OPTIONS[parseInt(n)-1]).join("");
+        let fixedOpts = [...optBodyEl.querySelectorAll("tr img[name$='.jpg']:first-child")].slice(-4).map(img => img.name.match(/_o(\d)[_\.]/)[1]).map(n => OPTIONS[parseInt(n)-1]).join("");
 
         fixedAns = relAns.split(",").map(o => fixedOpts[OPTIONS.indexOf(o)]).sort().join("");
         relKey = fixedKey.split("").map(o => OPTIONS[fixedOpts.indexOf(o)]).sort().join("");
