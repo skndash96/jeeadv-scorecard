@@ -36,7 +36,7 @@ const keys = {
     "618074239": "B",
     "618074240": "D",
     "618074241": "D",
-    "618074242": "AB", //provisional
+    "618074242": "AB", //provisional MCQ
     "618074243": "AC",
     "618074244": "CD", //provisional
     "618074245": "BD",
@@ -170,7 +170,7 @@ for (let t of document.querySelectorAll("table.menu-tbl")) {
         score += isCrct ? p : 0;
         max += p;
     } else if (typ === "MCQ") {
-        isCrct = fixedAns === fixedKey;
+        isCrct = fixedKey.includes(fixedAns);
 
         if (attempted) score += isCrct ? 3 : -1;
         max += 3;;
