@@ -21,7 +21,7 @@ const keys = {
     "618074224": "A",
     "618074225": "A",
     "618074226": "BD",
-    "618074227": "AB",
+    "618074227": "ABD", //provisional
     "618074228": "AB",
     "618074229": "3",
     "618074230": "2",
@@ -38,18 +38,18 @@ const keys = {
     "618074241": "D",
     "618074242": "B",
     "618074243": "AC",
-    "618074244": "C",
+    "618074244": "CD", //provisional
     "618074245": "BD",
     "618074246": "2500",
     "618074247": "150",
     "618074248": "41",
-    "618074249": "143",
-    "618074250": "5",
-    "618074251": "12",
+    "618074249": "135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151", //provisional
+    "618074250": "4,5", //provisional
+    "618074251": "6,12", //provisional
     "618074252": "2",
     "618074253": "93018",
     "618074254": "2",
-    "618074255": "2",
+    "618074255": "2,3", //provisional
     "618074256": "B",
     "618074257": "C",
     "618074258": "B",
@@ -159,7 +159,13 @@ for (let t of document.querySelectorAll("table.menu-tbl")) {
         let p = isPara(id) ? 3 : 4;
 
         if (fixedAns.split(".")[1]?.length > 2) isCrct = false;
-        else isCrct = fixedAns === fixedKey || (parseFloat(fixedAns) === parseFloat(fixedKey));
+        else {
+            let ks = fixedKey.split(",").map(n => parseFloat(n.trim()));
+
+            let a = parseFloat(fixedAns);
+
+            isCrct = ks.some(k => k === a);
+        }
 
         score += isCrct ? p : 0;
         max += p;

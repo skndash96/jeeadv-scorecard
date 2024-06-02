@@ -2,6 +2,6 @@
 
 Copy the code from `minified.js` file and paste it in browser console to see your score.
 
-- Keys taken from Allen site
-- Prone to key errors
-- In paragraph questions, integer answers are correct like `20` equal to `20.00` or `20.5` equal to `20.50` but `0.75` not equal to `0.7` or `1`.
+- Keys taken from ~~Allen~~ Official Provisional Answer key
+- In paragraph questions, integers are considered correct (`20` equals `20.00`, `20.1` equals `20.10`)
+- In paragraph questions, some key answers have range like `0.24-0.26` as correct, but only `0.25` is only correct according to this calculator. Most probably end up with this `0.25` if solved correctly.
